@@ -43,7 +43,7 @@ function handleRequest(req, res){
       if(req.method == 'POST'){
         var newUuid = uuid.v4()
         var newPath = './'+newUuid
-	      try{
+        try{
           ncp(ARM9LOADER_SOURCE_PATH, newPath , function (err) {
             var f=fs.createWriteStream(newPath + '/data_input/otp.bin')
             if (err) {
