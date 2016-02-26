@@ -14,7 +14,7 @@ var deleteFolderRecursive = function(path) {
       var curPath = path + "/" + file;
       if(fs.lstatSync(curPath).isDirectory()) { // recurse
         deleteFolderRecursive(curPath);
-      } else { // delete file
+      } else {
         fs.unlinkSync(curPath);
       }
     });
@@ -22,11 +22,13 @@ var deleteFolderRecursive = function(path) {
   }
 }
 
-var getShasums = function(path, installer){
+var getShasums = function(path, installer, otp){
   var algo = 'sha256'
   var shasum = crypto.createHash(algo)
   var installerSha = shasum.update(installer)
-  return {installerSha: installerSha.digest('hex')}
+  shasum = crypto.createHash(algo)
+  var otpSha = shasum.update(otp)
+  return {installerSha: installerSha.digest('hex'), otpSha: otpSha.digest('hex')}
 }
 
 function handleRequest(req, res){
@@ -37,38 +39,39 @@ function handleRequest(req, res){
         res.end("something went wrong, come back later")
         return;
       }
-      
+
       if(req.method == 'POST'){
-			  var newUuid = uuid.v4()
+        var newUuid = uuid.v4()
         var newPath = './'+newUuid
-				try{
+	      try{
           ncp(ARM9LOADER_SOURCE_PATH, newPath , function (err) {
             var f=fs.createWriteStream(newPath + '/data_input/otp.bin')
             if (err) {
               return exitWithErr()
             }else{
               req.on('data', function(chunk) {
-				  	    f.write(chunk)
+                 f.write(chunk)
               })
 
               req.on('end', function() {
-				  	    //TODO mudar esse content type
-                //
                 f.end()
-                var oldDir = process.cwd()
-                process.chdir(newPath)
-                if (exec('make', {silent:true}).code !== 0) {
-                  return exitWithErr()
-                }else{
-                  process.chdir(oldDir)
-                  var installer = fs.readFileSync(newPath + '/data_output/arm9loaderhax.3dsx')
-                  var shasums = getShasums(newPath, installer)
-                  res.writeHead(200, "OK", {'Content-Type': 'binary', 'Installer-Sha256': shasums.installerSha, 'Presented-by': 'felipejfc'})
-                  res.end(installer)
-                  deleteFolderRecursive(newPath)
-                  return
-                }
-              }) 
+                f.on('close', function() {
+                  var oldDir = process.cwd()
+                  process.chdir(newPath)
+                  if (exec('make', {silent:true}).code !== 0) {
+                    return exitWithErr()
+                  }else{
+                    process.chdir(oldDir)
+                    var installer = fs.readFileSync(newPath + '/data_output/arm9loaderhax.3dsx')
+                    var otp = fs.readFileSync(newPath + '/data_input/otp.bin')
+                    var shasums = getShasums(newPath, installer, otp)
+                    res.writeHead(200, "OK", {'Content-Type': 'binary', 'Installer-Sha256': shasums.installerSha, 'OTP-Sha256': shasums.otpSha, 'Presented-by': 'felipejfc'})
+                    res.end(installer)
+                    deleteFolderRecursive(newPath)
+                    return
+                  }
+                })
+              })
             }
           })
         }catch(e){
@@ -77,10 +80,13 @@ function handleRequest(req, res){
       } else {
         res.writeHead(405, "Method not supported", {'Content-Type': 'text/plain'})
         res.end('only post is supported.')
-        return 
+        return
       }
       break;
-  } 
+    default:
+      res.writeHead(404)
+      res.end('not found')		
+  }
 }
 
 var server = http.createServer(handleRequest)
