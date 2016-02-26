@@ -34,32 +34,54 @@ var getShasums = function(path, installer, otp){
 function handleRequest(req, res){
   switch(req.url){
     case '/':
-      var exitWithErr = function(){
+      var exitWithErr = function(newPath){
         res.writeHead(500)
         res.end("something went wrong, come back later")
-        return;
+        if(newPath){
+          deleteFolderRecursive(newPath)
+        }
+        return
+      }
+
+      var exitWithNotValidOtp = function(newPath){
+        res.writeHead(422)
+        res.end("you are trying to upload something different than 256 bytes, check your otp.bin!")
+        if(newPath){
+          deleteFolderRecursive(newPath)
+        }
+        return
       }
 
       if(req.method == 'POST'){
         var newUuid = uuid.v4()
         var newPath = './'+newUuid
+        var totalSize = 0
+        var newPathCreated = false
         try{
           ncp(ARM9LOADER_SOURCE_PATH, newPath , function (err) {
-            var f=fs.createWriteStream(newPath + '/data_input/otp.bin')
             if (err) {
-              return exitWithErr()
+              return exitWithErr(null)
             }else{
+              newPathCreated = true
+              var f = fs.createWriteStream(newPath + '/data_input/otp.bin')
               req.on('data', function(chunk) {
-                 f.write(chunk)
+                f.write(chunk)
+                totalSize += chunk.length
+                if(totalSize > 256){
+                  return exitWithNotValidOtp(newPath)
+                }
               })
 
               req.on('end', function() {
                 f.end()
+                if(totalSize != 256){
+                  return exitWithNotValidOtp(newPath)  
+                }
                 f.on('close', function() {
                   var oldDir = process.cwd()
                   process.chdir(newPath)
                   if (exec('make', {silent:true}).code !== 0) {
-                    return exitWithErr()
+                    return exitWithErr(newPath)
                   }else{
                     process.chdir(oldDir)
                     var installer = fs.readFileSync(newPath + '/data_output/arm9loaderhax.3dsx')
@@ -75,7 +97,7 @@ function handleRequest(req, res){
             }
           })
         }catch(e){
-          return exitWithErr()
+          return exitWithErr(newPathCreated ? newPath : null)
         }
       } else {
         res.writeHead(405, "Method not supported", {'Content-Type': 'text/plain'})
