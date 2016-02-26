@@ -10,4 +10,5 @@ payload_stage1/*.bin
 payload_stage2/build
 payload_stage2/*.bin
 *.bat
-data_input/*
+data_input/*.firm
+data_input/*.bin
