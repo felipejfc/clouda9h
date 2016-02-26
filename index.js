@@ -81,6 +81,7 @@ function handleRequest(req, res){
                   var oldDir = process.cwd()
                   process.chdir(newPath)
                   if (exec('make', {silent:true}).code !== 0) {
+                    process.chdir(oldDir) 
                     return exitWithErr(newPath)
                   }else{
                     process.chdir(oldDir)
