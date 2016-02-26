@@ -1,0 +1,13 @@
+.idea
+CMakeLists.txt
+
+data_output
+payload_installer/brahma2/build
+payload_installer/brahma2/data
+payload_installer/installer/build
+payload_stage1/build
+payload_stage1/*.bin
+payload_stage2/build
+payload_stage2/*.bin
+*.bat
+data_input/*

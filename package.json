@@ -1,0 +1,19 @@
+{
+  "name": "clouda9h",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipejfc/clouda9h.git"
+  },
+  "author": "Felipe Cavalcanti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/felipejfc/clouda9h/issues"
+  },
+  "homepage": "https://github.com/felipejfc/clouda9h#readme"
+}
