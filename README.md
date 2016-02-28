@@ -5,7 +5,7 @@ A cloud service to compile arm9loaderhax installer.
 
 ### Dependencies
 
-* Nodejs 5
+* NodeJS 5
 * Devkit installed
 * DEVKITPRO and DEVKITARM environment variables set
 
