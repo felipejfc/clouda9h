@@ -5,7 +5,6 @@ data = open('./otp.bin', 'rb').read()
 print("uploading otp file...")
 req = urllib2.Request('https://felipejfc.com/a9lh', data)
 res = urllib2.urlopen(req)
-chunk = 16 * 1024
 
 with open('arm9loaderhax.3dsx', 'wb') as f:
   shutil.copyfileobj(res, f)
