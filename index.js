@@ -11,14 +11,14 @@ const ARM9LOADER_SOURCE_PATH = './arm9loaderhax'
 var deleteFolderRecursive = function(path) {
   if( fs.existsSync(path) ) {
     fs.readdirSync(path).forEach(function(file,index){
-      var curPath = path + "/" + file;
+      var curPath = path + "/" + file
       if(fs.lstatSync(curPath).isDirectory()) {
-        deleteFolderRecursive(curPath);
+        deleteFolderRecursive(curPath)
       } else {
-        fs.unlinkSync(curPath);
+        fs.unlinkSync(curPath)
       }
     });
-    fs.rmdirSync(path);
+    fs.rmdirSync(path)
   }
 }
 
@@ -115,5 +115,5 @@ function handleRequest(req, res){
 var server = http.createServer(handleRequest)
 
 server.listen(PORT, function(){
-  console.log("Server listening on: http://localhost:%s", PORT);
+  console.log("clouda9h server listening on: http://localhost:%s", PORT);
 });
