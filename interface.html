@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>A9lh Webform</title>
+        <style>
+            #drop-zone{
+                border: 2px dashed #bbb;
+                border-radius: 5px;
+                padding: 25px;
+                text-align: center;
+                color: #bbb;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="drop-zone">Drop otp.bin here</div>
+        <output id="list"></output>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js"></script>
+        <script>
+            var compatible = null
+            if (File && FileReader && FileList && Blob){
+                compatible = true
+            } else {
+                compatible = false
+                alert("Your Browser is outdated (or Internet Explorer).")
+            }
+            
+            function handleFileSelect(e) {
+                e.stopPropagation()
+                e.preventDefault()
+                var files = e.dataTransfer.files
+                var f = null
+                if(files.length !== 1){
+                    alert("Drop only your otp.bin here!")
+                } else if (files[0].size !== 256) {
+                    alert("Your file is not 256 bytes big")
+                } else {
+                    f = files[0]
+                    console.log(f.size + " bytes")
+                    var reader = new FileReader()
+                    reader.onload = function (e) {
+                        sendRequest(reader.result)
+                    }
+                    reader.readAsArrayBuffer(f)
+                }
+            }
+            
+            function sendRequest (otp) {
+                var req = new XMLHttpRequest()
+                req.responseType = "arraybuffer"
+                req.open("POST", "http://localhost:3000", true)
+                req.onreadystatechange = function () {
+                    window.req = req
+                    if (this.readyState === 4){
+                        var blub = new Blob([req.response], {type: "application/octet-stream"})
+                        saveAs(blub, "arm9loaderhax.3dsx")
+                    }
+                }
+                req.send(otp)
+                
+                
+            } 
+            
+            function handleDragOver(e){
+                e.stopPropagation()
+                e.preventDefault()
+                e.dataTransfer.dropEffect = "copy"
+            }
+            
+            var dropZone = document.getElementById("drop-zone")
+            dropZone.addEventListener("dragover", handleDragOver, false)
+            dropZone.addEventListener("drop", handleFileSelect, false)
+        </script>
+    </body>
+</html>
