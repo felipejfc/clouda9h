@@ -82,7 +82,7 @@
                     } else if (files[0].size !== 256) {
                         addContent("Your file is not 256 bytes long", 1)
                     } else {
-                        addContent("Sending your file now ...")
+                        addContent("Sending your otp now ...")
                         hashes = []
                         var reader = new FileReader()
                         reader.onload = function (e) {
@@ -98,16 +98,20 @@
                     req.responseType = "arraybuffer" // Make sure to get raw data
                     req.open("POST", location.href, true)
                     req.onreadystatechange = function () {
-                        if (this.readyState === 4){ // Only run this after the binary is completly sent over
-                            addContent("Got a file! Let's check those hashes ...")
-                            hashes.push(asmCrypto.SHA256.hex(req.response))
-                            respondHashes = [req.getResponseHeader("OTP-Sha256"), req.getResponseHeader("Installer-Sha256")]
-                            if(matchHashes()){
-                                addContent("The hashes check out! Downloading now.", 2)
-                                saveAs(new Blob([req.response], {type: "application/octet-stream"}), "arm9loaderhax.3dsx")
-                            } else {
-                                addContent("The hashes don't match. Try again or go <a href='https://gbatemp.net/threads/compile-a9lh-on-demand.416385/'>here</a>.")
+                        if (this.status === 200) {
+                            if (this.readyState === 4) { // Only run this after the binary is completly sent over
+                                addContent("Got a file! Let's check those hashes.")
+                                hashes.push(asmCrypto.SHA256.hex(req.response))
+                                respondHashes = [req.getResponseHeader("OTP-Sha256"), req.getResponseHeader("Installer-Sha256")]
+                                if(matchHashes()){
+                                    addContent("The hashes check out! Downloading now.", 2)
+                                    saveAs(new Blob([req.response], {type: "application/octet-stream"}), "arm9loaderhax.3dsx")
+                                } else {
+                                    addContent("The hashes don't match. Try again or go <a href='https://github.com/felipejfc/clouda9h'>here</a>.", 1)
+                                }
                             }
+                        } else {
+                            addContent("There seems to be a problem with the server.", 1)
                         }
                     }
                     req.send(otp)
