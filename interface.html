@@ -18,7 +18,7 @@
             .basic {
                 margin: 0 auto;
                 margin-top: 10px;
-                width: 500px;
+                width: 720px;
                 padding: 10px 5px 10px 10px;
                 text-align: center;
             }
@@ -26,11 +26,12 @@
                 background: #0092D7;
                 color: white;
                 border-radius: 10px;
+                font-size: 2.5em;
             }
             .title {
                 color: white;
                 text-shadow: 1px 1px 15px rgba(0, 0, 0, 0.40);
-                font-size: 30px;
+                font-size: 8em;
                 padding: 5px 0px 5px 5px;
             }
             .negative {
@@ -95,7 +96,7 @@
                 function sendRequest (otp) {
                     var req = new XMLHttpRequest()
                     req.responseType = "arraybuffer" // Make sure to get raw data
-                    req.open("POST", "http://localhost:3000", true)
+                    req.open("POST", location.href, true)
                     req.onreadystatechange = function () {
                         if (this.readyState === 4){ // Only run this after the binary is completly sent over
                             addContent("Got a file! Let's check those hashes ...")
