@@ -5,7 +5,7 @@ var fs = require('fs')
 var crypto = require('crypto')
 require('shelljs/global')
 
-const PORT = 6000
+const PORT = 3000
 const ARM9LOADER_SOURCE_PATH = './arm9loaderhax'
 
 var deleteFolderRecursive = function(path) {
@@ -101,8 +101,14 @@ function handleRequest(req, res){
           return exitWithErr(newPathCreated ? newPath : null)
         }
       } else {
-        res.writeHead(405, "Method not supported", {'Content-Type': 'text/plain'})
-        res.end('only post is supported.')
+        fs.readFile("./interface.html", function (e, html){
+            if (e){
+                throw(e)
+            }
+            res.writeHeader(200, {"Content-Type": "text/html"})
+            res.write(html)
+            res.end()
+        })
         return
       }
       break;
