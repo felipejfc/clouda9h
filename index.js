@@ -45,7 +45,7 @@ function handleRequest(req, res){
 
       var exitWithNotValidOtp = function(newPath){
         res.writeHead(422)
-        res.end("you are trying to upload something different than 256 bytes, check your otp.bin!")
+        res.end("you are trying to upload something different than 256 or 264 bytes, check your otp.bin!")
         if(newPath){
           deleteFolderRecursive(newPath)
         }
@@ -67,14 +67,14 @@ function handleRequest(req, res){
               req.on('data', function(chunk) {
                 f.write(chunk)
                 totalSize += chunk.length
-                if(totalSize > 256){
+                if(totalSize > 264){
                   return exitWithNotValidOtp(newPath)
                 }
               })
 
               req.on('end', function() {
                 f.end()
-                if(totalSize != 256){
+                if(totalSize != 256 && totalSize != 264){
                   return exitWithNotValidOtp(newPath)  
                 }
                 f.on('close', function() {
